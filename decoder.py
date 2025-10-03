@@ -1,8 +1,10 @@
 import numpy as np
 import cv2
+from config import SPEC, STEP
+from blocks import decode_block_qim
 
 
-def decode_bytes_from_jpeg(path: str) -> bytes:
+def decode_bytes_from_jpeg(path: str, header: bool = True) -> bytes:
     img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     if img is None:
         raise IOError(f"failed to read {path}")
@@ -22,10 +24,21 @@ def decode_bytes_from_jpeg(path: str) -> bytes:
         y0, y1 = by * 8, (by + 1) * 8
         x0, x1 = bx * 8, (bx + 1) * 8
         block = img[y0:y1, x0:x1]
-        val = int(round(block.mean()))
-        out.append(np.clip(val, 0, 255))
+
+        vals = decode_block_qim(block, SPEC, step=STEP)
+        for i in range(0, len(vals), 8):
+            byte = 0
+            for bit in vals[i:i + 8]:
+                byte = (byte << 1) | bit
+            out.append(byte)
+        # val = int(round(block.mean()))
+        # out.append(np.clip(val, 0, 255))
 
     binary = bytes(out)
-    size = int.from_bytes(binary[0:4], byteorder="big")
+    print(binary.hex(' '))
 
-    return binary[4:size+4]
+    if header:
+        size = int.from_bytes(binary[0:4], byteorder="big")
+        return binary[4:size + 4]
+
+    return binary
