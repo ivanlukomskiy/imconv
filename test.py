@@ -53,9 +53,12 @@ class MyTestCase(unittest.TestCase):
         print(decoded_bytes.hex(' '))
         errors = 0
         for i, byte in enumerate(decoded_bytes):
-            if byte != encoded_bytes[i]:
-                print(f'mismatch at index {i}: {decoded_bytes[i]} != {encoded_bytes[i]}')
+            if len(encoded_bytes) <= i or byte != encoded_bytes[i]:
                 errors+=1
+                if len(encoded_bytes) <= i:
+                    print('out')
+                    continue
+                print(f'mismatch at index {i}: {decoded_bytes[i]} != {encoded_bytes[i]}')
         print(f'errors: {errors}, rate {errors/len(decoded_bytes)}')
         # self.assertEqual(encoded_bytes, decoded_bytes)
 
