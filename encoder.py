@@ -1,7 +1,7 @@
 import numpy as np
 import cv2
 from typing import Iterator
-from config import SPEC, STEP
+from config import SPEC
 from blocks import encode_block_qim
 
 header_size = 4
@@ -33,15 +33,17 @@ def encode_bytes_to_jpeg(data: bytes, width: int, height: int, out_path: str, qu
         size_bytes += 4
 
     size_bits = size_bytes * 8
-    if size_bits > capacity_bits:
-        raise ValueError(f"image too small: capacity={capacity_bits} bytes, need={size_bits}")
+    # if size_bits > capacity_bits:
+    #     raise ValueError(f"image too small: capacity={capacity_bits} bytes, need={size_bits}")
 
     img = np.zeros((height, width), dtype=np.uint8)
 
     if header:
+        print(f"EXP SIZE: {len(data)}")
         header = len(data).to_bytes(4, byteorder="big")
         data = header + data
 
+    print("Before encoding")
     print(data.hex(' '))
     bit_iter = bytes_to_bits(data)
 
@@ -51,8 +53,8 @@ def encode_bytes_to_jpeg(data: bytes, width: int, height: int, out_path: str, qu
         y0, y1 = by * 8, (by + 1) * 8
         x0, x1 = bx * 8, (bx + 1) * 8
 
-        blk = np.full((8, 8), 128, dtype=np.float32)
-        new_block, used = encode_block_qim(blk, SPEC, bit_iter, step=STEP)
+        blk = np.full((8, 8), 0, dtype=np.float32)
+        new_block = encode_block_qim(blk, SPEC, bit_iter)
         # print(new_block.copy())
         img[y0:y1, x0:x1] = np.clip(new_block, 0, 255).astype(np.uint8)
 
