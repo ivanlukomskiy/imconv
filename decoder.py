@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 
-def decode_bytes_from_jpeg(path: str, max_bytes: int = None) -> bytes:
+def decode_bytes_from_jpeg(path: str) -> bytes:
     img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
     if img is None:
         raise IOError(f"failed to read {path}")
@@ -15,13 +15,8 @@ def decode_bytes_from_jpeg(path: str, max_bytes: int = None) -> bytes:
     blocks_y = h // 8
     capacity = blocks_x * blocks_y
 
-    if max_bytes is None:
-        max_bytes = capacity
-    else:
-        max_bytes = min(max_bytes, capacity)
-
     out = bytearray()
-    for i in range(max_bytes):
+    for i in range(capacity):
         by = i // blocks_x
         bx = i % blocks_x
         y0, y1 = by * 8, (by + 1) * 8

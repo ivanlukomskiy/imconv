@@ -11,6 +11,8 @@ def encode_bytes_to_jpeg(data: bytes, width: int, height: int, out_path: str, qu
     blocks_y = height // 8
     capacity = blocks_x * blocks_y
 
+    print(f"max image capacity: {capacity}")
+
     if len(data) + header_size > capacity:
         raise ValueError(f"image too small: capacity={capacity} bytes, need={len(data)}")
 
