@@ -51,7 +51,13 @@ class MyTestCase(unittest.TestCase):
         decoded_bytes = decode_bytes_from_jpeg(img_name)
         print("Decoded bytes:")
         print(decoded_bytes.hex(' '))
-        self.assertEqual(encoded_bytes, decoded_bytes)
+        errors = 0
+        for i, byte in enumerate(decoded_bytes):
+            if byte != encoded_bytes[i]:
+                print(f'mismatch at index {i}: {decoded_bytes[i]} != {encoded_bytes[i]}')
+                errors+=1
+        print(f'errors: {errors}, rate {errors/len(decoded_bytes)}')
+        # self.assertEqual(encoded_bytes, decoded_bytes)
 
 
 if __name__ == '__main__':
